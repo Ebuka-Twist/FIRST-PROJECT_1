@@ -1,0 +1,45 @@
+from machine import Pin
+import utime
+
+# Define the pins for DRV8825
+step_pin = Pin(2, Pin.OUT)
+dir_pin = Pin(3, Pin.OUT)
+enable_pin = Pin(4, Pin.OUT)
+
+# Set the initial direction (clockwise or anticlockwise)
+def set_direction(direction):
+    dir_pin.value(direction)
+
+# Enable or disable the motor
+def enable_motor(enable):
+    enable_pin.value(not enable)
+
+# Step the motor
+def step(delay_us):
+    step_pin.value(1)
+    utime.sleep_us(delay_us)
+    step_pin.value(0)
+    utime.sleep_us(delay_us)
+
+# Rotate the motor by a specified angle in degrees
+def rotate_angle(angle_degrees, delay_us, clockwise=True):
+    steps_per_revolution = 200  # This depends on your motor's specifications
+    total_steps = int(steps_per_revolution * angle_degrees / 360)
+
+    set_direction(1 if clockwise else 0)
+    enable_motor(True)
+    
+    for _ in range(total_steps):
+        step(delay_us)
+    
+    enable_motor(False)
+
+# Main program
+if __name__ == "__main__":
+    delay_between_steps = 1000  # Adjust this value for the desired speed
+    
+    while True:
+        rotate_angle(90, delay_between_steps, clockwise=True)  # Rotate 90 degrees clockwise
+        utime.sleep(1)
+        rotate_angle(90, delay_between_steps, clockwise=False)  # Rotate 90 degrees anticlockwise
+        utime.sleep(1)
